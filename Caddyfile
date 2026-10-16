@@ -50,7 +50,7 @@ dash.famoacademy.ir {
 
 iris.nadstore.ir {
     import common
-    reverse_proxy shop-iris:80
+    reverse_proxy iris-shop-iris-1:80
 }
 
 files.nadlab.ir {
