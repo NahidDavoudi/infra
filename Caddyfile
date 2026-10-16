@@ -1,0 +1,74 @@
+{
+    email {$ACME_EMAIL}
+}
+
+(common) {
+    encode zstd gzip
+    header {
+        X-Content-Type-Options nosniff
+        Referrer-Policy strict-origin-when-cross-origin
+        -Server
+    }
+}
+
+# ---- Famo (پنج سرویس؛ هر کدام یک ساب‌دامین جدا) ----
+# هر ساب‌دامین صریح نوشته می‌شود تا گواهی SSL مستقل بگیرد (wildcard نیاز به
+# DNS challenge دارد که برای دامنه .ir معمولاً پلاگین Caddy ندارد).
+www.famoacademy.ir {
+    redir https://famoacademy.ir{uri} permanent
+}
+famoacademy.ir {
+    import common
+    reverse_proxy famo-public:80
+}
+
+plan.famoacademy.ir {
+    import common
+    reverse_proxy famo-plan:80
+}
+
+admin.famoacademy.ir {
+    import common
+    reverse_proxy famo-admin:80
+}
+auth.famoacademy.ir {
+    import common
+    reverse_proxy famo-auth:80
+}
+api.famoacademy.ir {
+    import common
+    reverse_proxy famo-api:80
+}
+assets.famoacademy.ir {
+    import common
+    reverse_proxy famo-assets:80
+}
+dash.famoacademy.ir {
+    import common
+    reverse_proxy famo-dash:80
+}
+
+iris.nadstore.ir {
+    import common
+    reverse_proxy shop-iris:80
+}
+
+files.nadlab.ir {
+    import common
+    request_body {
+        max_size 10GB
+    }
+    reverse_proxy filebrowser:80
+}
+
+# ---- phpMyAdmin (پشت Basic Auth) ----
+nadmin.nadlab.ir {
+    import common
+    basic_auth {
+        admin $2a$14$6i/JMC/vh7eFGPTW/T2slOlaLVDZlAQg7fqYnG9xb2/tUVG1MyAx.
+    }
+    reverse_proxy phpmyadmin:80
+}
+
+# بعد از هر تغییر:
+# docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile
